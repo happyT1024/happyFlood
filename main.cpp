@@ -7,6 +7,8 @@
 
 class Config {
 public:
+  Config() = default;
+
   Config(int argc, char *argv[]) {
     if (argc > 1)
       m_HOST = argv[1];
@@ -23,27 +25,44 @@ public:
       }
     }
   }
+
+  Config &operator=(const Config &other) = default;
+
   [[nodiscard]] int getPort() const { return m_PORT; }
+
   void setPort(int port) { m_PORT = port; }
+
   [[nodiscard]] const std::string &getHost() const { return m_HOST; }
+
   void setHost(const std::string &host) { m_HOST = host; }
+
   [[nodiscard]] int getNumberOfSockets() const { return m_numberOfSockets; }
+
   void setNumberOfSockets(int n) { m_numberOfSockets = n; }
+
   [[nodiscard]] int getNumberOfSends() const { return m_numberOfSends; }
+
   void setNumberOfSends(int m) { m_numberOfSends = m; }
+
   [[nodiscard]] const std::vector<const char *> &getMessages() const {
     return m_messages;
   }
+
   void setMessages(const std::vector<const char *> &messages) {
     Config::m_messages = messages;
   }
 
+  [[nodiscard]] __socket_type getSocketType() const { return m_socket_type; }
+
+  ~Config() = default;
+
 private:
-  int m_PORT = 8080;
+  int m_PORT{8080};
   std::string m_HOST{"192.168.0.12"};
-  int m_numberOfSockets = 3;
-  int m_numberOfSends = 1;
+  int m_numberOfSockets{3};
+  int m_numberOfSends{4};
   std::vector<const char *> m_messages{"XXX"};
+  __socket_type m_socket_type{SOCK_DGRAM};
 };
 
 void create_sockets(std::vector<int> &socks, const Config &config) {
@@ -54,7 +73,7 @@ void create_sockets(std::vector<int> &socks, const Config &config) {
     ipVersion = AF_INET6;
   }
   for (auto &s : socks) {
-    if ((s = socket(ipVersion, SOCK_DGRAM, 0)) < 0) {
+    if ((s = socket(ipVersion, config.getSocketType(), 0)) < 0) {
       perror("socket creation failed");
       exit(EXIT_FAILURE);
     }
@@ -105,7 +124,7 @@ int main(int argc, char *argv[]) {
       flood(s, config, targetAddr);
     }
     sends += bytesToKB(calcMessagesSize(config) * socks.size());
-    if (i % 100 == 0) {
+    if (i % 10 == 0) {
       if (sends < 1024 * 4)
         std::cout << "\rSends: " << sends << " KB" << std::flush;
       else
