@@ -48,8 +48,13 @@ private:
 
 void create_sockets(std::vector<int> &socks, const Config &config) {
   socks.resize(config.getNumberOfSockets());
+  char buf[INET6_ADDRSTRLEN];
+  auto ipVersion = AF_INET;
+  if (inet_pton(AF_INET6, config.getHost().c_str(), buf)) {
+    ipVersion = AF_INET6;
+  }
   for (auto &s : socks) {
-    if ((s = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+    if ((s = socket(ipVersion, SOCK_DGRAM, 0)) < 0) {
       perror("socket creation failed");
       exit(EXIT_FAILURE);
     }
@@ -59,9 +64,15 @@ void create_sockets(std::vector<int> &socks, const Config &config) {
 sockaddr_in create_address(const Config &config) {
   sockaddr_in servaddr{};
   memset(&servaddr, 0, sizeof(servaddr));
-  servaddr.sin_family = AF_INET;
+  char buf[INET6_ADDRSTRLEN];
+  if (inet_pton(AF_INET, config.getHost().c_str(), buf)) {
+    servaddr.sin_family = AF_INET;
+    inet_pton(AF_INET, config.getHost().c_str(), &(servaddr.sin_addr));
+  } else if (inet_pton(AF_INET6, config.getHost().c_str(), buf)) {
+    servaddr.sin_family = AF_INET6;
+    inet_pton(AF_INET6, config.getHost().c_str(), &(servaddr.sin_addr));
+  }
   servaddr.sin_port = htons(config.getPort());
-  inet_pton(AF_INET, config.getHost().c_str(), &(servaddr.sin_addr));
   return servaddr;
 }
 
