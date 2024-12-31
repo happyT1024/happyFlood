@@ -10,7 +10,11 @@ ServerConfig::ServerConfig(int argc, char *argv[]) {
   if (argc > 3)
     m_speed = std::stoi(argv[3]);
   if (argc > 4)
-    m_msg = argv[4];
+    m_time = std::stoi(argv[4]);
+  if (argc > 5)
+    m_msg = argv[5];
+  if (argc > 6)
+    m_writeStatistics = std::stoi(argv[6]);
 }
 
 [[nodiscard]] int ServerConfig::getPort() const { return m_dstPort; }
@@ -26,5 +30,7 @@ ServerConfig::ServerConfig(int argc, char *argv[]) {
 [[nodiscard]] std::string ServerConfig::getMsg() const { return m_msg; }
 
 [[nodiscard]] bool ServerConfig::getWriteStatistics() const { return m_writeStatistics; }
+
+[[nodiscard]] int ServerConfig::getTime() const {return m_time;}
 
 } // namespace HappyFlood::Config

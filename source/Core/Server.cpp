@@ -15,7 +15,7 @@ Server::Server(int argc, char *argv[])
 
 void Server::run() {
   using namespace std::chrono_literals;
-  for (int n = 0; n < 100; ++n) {
+  for (int n = 0; n < m_config.getTime(); ++n) {
     auto start = std::chrono::high_resolution_clock::now();
     int i = 0;
     for (; i < m_msgPerSecond; ++i) {
