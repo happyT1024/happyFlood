@@ -4,10 +4,10 @@
 
 namespace HappyFlood::Core {
 
-template <int MINUTES> class ServerStatistic {
+template <int SIZE> class ServerStatistic {
 public:
   using integer_type = std::size_t;
-  using data_type = std::array<integer_type, MINUTES>;
+  using data_type = std::array<integer_type, SIZE>;
   using data_iterator = typename data_type::iterator;
   using data_const_iterator = typename data_type::const_iterator;
 
@@ -22,32 +22,30 @@ public:
     }
     *m_iterator = value;
     ++m_iterator;
-    if (m_sizeOfRealData < MINUTES * 60) {
+    if (m_sizeOfRealData < SIZE) {
       ++m_sizeOfRealData;
     }
   }
 
-  [[nodiscard]] integer_type getAverage(int seconds = MINUTES * 60) const {
-    integer_type average{0};
-    data_const_iterator iterator{m_iterator-1};
-    if (m_sizeOfRealData >= seconds) {
-      for (int i = 0; i < seconds; ++i) {
+  [[nodiscard]] double getAverage(integer_type n = SIZE) const {
+    double average{0};
+    data_const_iterator iterator{m_iterator - 1};
+    if (m_sizeOfRealData >= n) {
+      for (int i = 0; i < n; ++i) {
         if (iterator < m_data.begin()) {
-          iterator = m_data.end()-1;
+          iterator = m_data.end() - 1;
         }
-        average += *iterator;
+        average += (*iterator) / static_cast<double>(n);
         --iterator;
       }
-      average /= seconds;
     } else {
       for (int i = 0; i < m_sizeOfRealData; ++i) {
         if (iterator < m_data.begin()) {
-          iterator = m_data.end()-1;
+          iterator = m_data.end() - 1;
         }
-        average += *iterator;
+        average += (*iterator) / static_cast<double>(m_sizeOfRealData);
         --iterator;
       }
-      average /= m_sizeOfRealData;
     }
     return average;
   }
@@ -56,7 +54,7 @@ public:
 
 private:
   data_type m_data = {};
-  data_iterator m_iterator = m_data.begin();
+  data_iterator m_iterator{m_data.begin()};
   integer_type m_sizeOfRealData{0};
 };
 
