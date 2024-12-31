@@ -7,6 +7,10 @@ ServerConfig::ServerConfig(int argc, char *argv[]) {
     m_dstHost = argv[1];
   if (argc > 2)
     m_dstPort = std::stoi(argv[2]);
+  if (argc > 3)
+    m_speed = std::stoi(argv[3]);
+  if (argc > 4)
+    m_msg = argv[4];
 }
 
 [[nodiscard]] int ServerConfig::getPort() const { return m_dstPort; }

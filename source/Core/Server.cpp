@@ -7,7 +7,7 @@ Server::Server(const Config::ServerConfig &config) : m_config(config) {
   create_address();
   int ipDataSize = static_cast<int>(m_config.getMsg().size() / 8) +
                    static_cast<bool>(m_config.getMsg().size() % 8);
-  m_msgPerSecond = (m_config.getSpeed() * 1024) / ipDataSize;
+  m_msgPerSecond = (m_config.getSpeed() * 1024) / static_cast<int>(m_config.getMsg().size());
 }
 
 Server::Server(int argc, char *argv[])
@@ -87,7 +87,7 @@ void Server::output_statistic(int seconds) const {
                << std::endl;;
 
   std::cout<< "Target hostport: " << m_config.getHost() << ":" << m_config.getPort() << std::endl;
-  std::cout<< "Target speed: " << m_config.getSpeed() << "Kb\\s" << std::endl;
+  std::cout<< "Speed limit: " << m_config.getSpeed() << "Kb\\s" << std::endl;
   std::cout<< "Message: " << m_config.getMsg() << std::endl;
 
   std::cout<<"Uptime: " << seconds << " seconds" << std::endl;
