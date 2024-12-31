@@ -20,14 +20,14 @@ void Server::run() {
     int i = 0;
     for (; i < m_msgPerSecond; ++i) {
       send_msg();
-      if((i % 1000) == 0) {
-        if(std::chrono::high_resolution_clock::now() - start > 1000ms) {
+      if ((i % 1000) == 0) {
+        if (std::chrono::high_resolution_clock::now() - start > 1000ms) {
           break;
         }
       }
     }
     add_statistic(i);
-    output_statistic();
+    output_statistic(n+1);
     auto elapsed = std::chrono::high_resolution_clock::now() - start;
     if (elapsed < 1000ms) {
       std::this_thread::sleep_for(1000ms - elapsed);
@@ -68,22 +68,41 @@ void Server::send_msg() const {
 }
 
 void Server::add_statistic(int sendPackages) {
-  if(!m_config.getWriteStatistics()) return;
-  m_sentKbStatistic.add(sendPackages*m_config.getMsg().size()/1024);
+  if (!m_config.getWriteStatistics())
+    return;
+  m_sentKbStatistic.add(sendPackages * m_config.getMsg().size() / 1024);
   m_sentPackagesStatistic.add(sendPackages);
 }
 
-void Server::output_statistic() const {
-  if(!m_config.getWriteStatistics()) return;
-  std::cout << "Sent packages: " << m_sentPackagesStatistic.getAverage(1) << std::endl;
-  std::cout << "Sent Kb: " << m_sentKbStatistic.getAverage(1) << std::endl;
-  std::cout << "Average sent packages by 5 second: " << m_sentPackagesStatistic.getAverage(5) << std::endl;
-  std::cout << "Average sent Kb by 5 second: " << m_sentKbStatistic.getAverage(5) << std::endl;
-  std::cout << "Average sent packages by 30 second: " << m_sentPackagesStatistic.getAverage(30) << std::endl;
-  std::cout << "Average sent Kb by 30 second: " << m_sentKbStatistic.getAverage(30) << std::endl;
-  std::cout << "Average sent packages: " << m_sentPackagesStatistic.getAverage() << std::endl;
-  std::cout << "Average sent Kb: " << m_sentKbStatistic.getAverage() << std::endl;
-  std::cout<<"-------------------------------------------------------------------\n";
+void Server::output_statistic(int seconds) const {
+  if (!m_config.getWriteStatistics())
+    return;
+  system("clear");
+  std::cout << "██╗  ██╗ █████╗ ██████╗ ██████╗ ██╗   ██╗███████╗██╗      ██████╗  ██████╗ ██████╗ \n"
+               "██║  ██║██╔══██╗██╔══██╗██╔══██╗╚██╗ ██╔╝██╔════╝██║     ██╔═══██╗██╔═══██╗██╔══██╗\n"
+               "███████║███████║██████╔╝██████╔╝ ╚████╔╝ █████╗  ██║     ██║   ██║██║   ██║██║  ██║\n"
+               "██╔══██║██╔══██║██╔═══╝ ██╔═══╝   ╚██╔╝  ██╔══╝  ██║     ██║   ██║██║   ██║██║  ██║\n"
+               "██║  ██║██║  ██║██║     ██║        ██║   ██║     ███████╗╚██████╔╝╚██████╔╝██████╔╝\n"
+               "╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝        ╚═╝   ╚═╝     ╚══════╝ ╚═════╝  ╚═════╝ ╚═════╝ \n"
+               << std::endl;;
+
+  std::cout<< "Target hostport: " << m_config.getHost() << ":" << m_config.getPort() << std::endl;
+  std::cout<< "Target speed: " << m_config.getSpeed() << "Kb\\s" << std::endl;
+  std::cout<< "Message: " << m_config.getMsg() << std::endl;
+
+  std::cout<<"Uptime: " << seconds << " seconds" << std::endl;
+  std::cout << "Average sent by 1 second: " << m_sentKbStatistic.getAverage(1)
+            << " Kb\\s " << m_sentPackagesStatistic.getAverage(1) << " packages"
+            << std::endl;
+  std::cout << "Average sent by 5 second: " << m_sentKbStatistic.getAverage(5)
+            << " Kb\\s " << m_sentPackagesStatistic.getAverage(5) << " packages"
+            << std::endl;
+  std::cout << "Average sent by 30 second: " << m_sentKbStatistic.getAverage(30)
+            << " Kb\\s " << m_sentPackagesStatistic.getAverage(30) << " packages"
+            << std::endl;
+  std::cout << "Average sent: " << m_sentKbStatistic.getAverage()
+            << " Kb\\s " << m_sentPackagesStatistic.getAverage() << " packages"
+            << std::endl;
 }
 
 } // namespace HappyFlood::Core

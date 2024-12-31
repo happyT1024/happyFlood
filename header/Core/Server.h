@@ -33,7 +33,7 @@ private:
   void create_address();
   void send_msg() const;
   void add_statistic(int sendPackages);
-  void output_statistic() const;
+  void output_statistic(int seconds) const;
 };
 
 } // namespace HappyFlood::Core
