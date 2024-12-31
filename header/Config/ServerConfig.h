@@ -21,6 +21,7 @@ public:
   [[nodiscard]] __socket_type getSocketType() const;
   [[nodiscard]] int getSpeed() const;
   [[nodiscard]] std::string getMsg() const;
+  [[nodiscard]] bool getWriteStatistics() const;
 
   ~ServerConfig() = default;
 
@@ -28,8 +29,9 @@ private:
   int m_dstPort{8080};
   std::string m_dstHost{"192.168.0.12"};
   std::string m_msg{"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"};
-  int m_speed{100}; // Kb/s
+  int m_speed{1000000000}; // Kb/s
   __socket_type m_socketType{SOCK_DGRAM};
+  bool m_writeStatistics{true};
 };
 
 }

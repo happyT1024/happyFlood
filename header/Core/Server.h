@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Config/ServerConfig.h"
+#include <Config/ServerConfig.h>
+#include <Core/ServerStatistic.h>
 
 namespace HappyFlood::Core {
 
@@ -24,11 +25,15 @@ private:
   int m_exitCode{EXIT_SUCCESS};
   int m_msgPerSecond{};
   int m_ipVersion{};
+  ServerStatistic<5> m_sentKbStatistic;
+  ServerStatistic<5> m_sentPackagesStatistic;
 
 private:
   void create_socket();
   void create_address();
   void send_msg() const;
+  void add_statistic(int sendPackages);
+  void output_statistic() const;
 };
 
 } // namespace HappyFlood::Core

@@ -21,4 +21,6 @@ ServerConfig::ServerConfig(int argc, char *argv[]) {
 
 [[nodiscard]] std::string ServerConfig::getMsg() const { return m_msg; }
 
+[[nodiscard]] bool ServerConfig::getWriteStatistics() const { return m_writeStatistics; }
+
 } // namespace HappyFlood::Config

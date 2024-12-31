@@ -14,11 +14,24 @@ Server::Server(int argc, char *argv[])
     : Server(Config::ServerConfig(argc, argv)) {}
 
 void Server::run() {
-  for (int n = 0; n < 5; ++n) {
-    for (int i = 0; i < m_msgPerSecond; ++i) {
+  using namespace std::chrono_literals;
+  for (int n = 0; n < 100; ++n) {
+    auto start = std::chrono::high_resolution_clock::now();
+    int i = 0;
+    for (; i < m_msgPerSecond; ++i) {
       send_msg();
+      if((i % 1000) == 0) {
+        if(std::chrono::high_resolution_clock::now() - start > 1000ms) {
+          break;
+        }
+      }
     }
-    sleep(1);
+    add_statistic(i);
+    output_statistic();
+    auto elapsed = std::chrono::high_resolution_clock::now() - start;
+    if (elapsed < 1000ms) {
+      std::this_thread::sleep_for(1000ms - elapsed);
+    }
   }
 }
 
@@ -53,4 +66,24 @@ void Server::send_msg() const {
          MSG_NOSIGNAL, reinterpret_cast<const sockaddr *>(&m_addr),
          sizeof(m_addr));
 }
+
+void Server::add_statistic(int sendPackages) {
+  if(!m_config.getWriteStatistics()) return;
+  m_sentKbStatistic.add(sendPackages*m_config.getMsg().size()/1024);
+  m_sentPackagesStatistic.add(sendPackages);
+}
+
+void Server::output_statistic() const {
+  if(!m_config.getWriteStatistics()) return;
+  std::cout << "Sent packages: " << m_sentPackagesStatistic.getAverage(1) << std::endl;
+  std::cout << "Sent Kb: " << m_sentKbStatistic.getAverage(1) << std::endl;
+  std::cout << "Average sent packages by 5 second: " << m_sentPackagesStatistic.getAverage(5) << std::endl;
+  std::cout << "Average sent Kb by 5 second: " << m_sentKbStatistic.getAverage(5) << std::endl;
+  std::cout << "Average sent packages by 30 second: " << m_sentPackagesStatistic.getAverage(30) << std::endl;
+  std::cout << "Average sent Kb by 30 second: " << m_sentKbStatistic.getAverage(30) << std::endl;
+  std::cout << "Average sent packages: " << m_sentPackagesStatistic.getAverage() << std::endl;
+  std::cout << "Average sent Kb: " << m_sentKbStatistic.getAverage() << std::endl;
+  std::cout<<"-------------------------------------------------------------------\n";
+}
+
 } // namespace HappyFlood::Core
